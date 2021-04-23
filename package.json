@@ -1,0 +1,23 @@
+{
+  "name": "effective-octo-computing-machine",
+  "version": "1.0.0",
+  "description": "An Effective Octo Computing Machine",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Peregrine42/effective-octo-computing-machine.git"
+  },
+  "keywords": [
+    "web",
+    "framework"
+  ],
+  "author": "Duncan Fermor",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Peregrine42/effective-octo-computing-machine/issues"
+  },
+  "homepage": "https://github.com/Peregrine42/effective-octo-computing-machine#readme"
+}
