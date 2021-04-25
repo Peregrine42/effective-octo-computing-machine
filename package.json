@@ -23,5 +23,8 @@
     "shelljs": "^0.8.4",
     "tree-kill": "^1.2.2",
     "webdriverio": "^7.5.1"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
   }
 }

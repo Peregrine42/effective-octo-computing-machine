@@ -56,7 +56,7 @@ describe('Main', function () {
 			})
 		})
 
-		this.child = shell.exec("cargo run", { async: true, silent: true })
+		this.child = shell.exec("node index.js", { async: true, silent: true })
 		await poll("http://localhost:8080/hello")
 
 		this.driverChild = shell.exec("./node_modules/.bin/geckodriver", { async: true, silent: true })
