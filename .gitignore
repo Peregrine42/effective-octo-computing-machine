@@ -1,6 +1,4 @@
+node_modules
 tmp/
-
-
-# Added by cargo
-
 /target
+tests_output/
