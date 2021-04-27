@@ -17,7 +17,7 @@ class TestHarness {
             })
         })
 
-        this.child = shell.exec("node index.js",
+        this.child = shell.exec("MAVEN_OPTS=\"-Xmx1024m\" mvn spring-boot:run",
             {
                 async: true
             }
@@ -70,7 +70,7 @@ class TestHarness {
     }
 
     async poll(url, expectedErrorCode = null) {
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 60; i++) {
             try {
                 this.debug("getting...")
                 await axios.get(url)
