@@ -17,7 +17,9 @@ class TestHarness {
             })
         })
 
-        this.child = shell.exec("MAVEN_OPTS=\"-Xmx1024m\" mvn spring-boot:run",
+        const result = shell.exec("MAVEN_OPTS=\"-Xmx1024m\" mvn clean package spring-boot:repackage")
+        if (result.code !== 0) throw new Error("Server failed to compile")
+        this.child = shell.exec("java -jar target/*.jar -Xmx1024m",
             {
                 async: true
             }
