@@ -12,6 +12,14 @@
 	</head>
 
 	<body>
+		{% if success is not empty %}
+			<div id="success">{{ success }}</div>
+		{% endif %}
+		{% if request.userPrincipal.authenticated %}
+			<form method="post" accept-charset="UTF-8" action="/sign-out">
+				<input id="sign-out" type="submit" value="Sign out">
+			</form>
+		{% endif %}
 		{% block body %}{%endblock %}
 	</body>
-</html>
+</html></body></html>

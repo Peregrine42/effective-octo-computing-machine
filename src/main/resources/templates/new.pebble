@@ -1,0 +1,30 @@
+{% extends "layout" %}
+
+{% set title = "Users - New" %}
+
+{% block body %}
+	{% if errorMessage is defined %}
+		<p>{{ errorMessage }}</p>
+	{% endif %}
+
+	<form method="post" accept-charset="UTF-8" action="/users">
+		<input type="hidden" name="{{request.getAttribute('_csrf').parameterName}}" value="{{request.getAttribute('_csrf').token}}"/>
+
+		<h3>
+			<label for="username">Username</label>
+		</h3>
+		<input id="username" type="text" name="username">
+
+		<h3>
+			<label for="password">Password</label>
+		</h3>
+		<input id="password" type="password" name="password">
+
+		<h3>
+			<label for="password-confirm">Confirm Password</label>
+		</h3>
+		<input id="password-confirm" type="password" name="password-confirm">
+
+		<input id="submit" type="submit" value="Submit">
+	</form>
+{% endblock %}

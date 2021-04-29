@@ -1,0 +1,7 @@
+{% extends "layout" %}
+
+{% set title = "Users" %}
+
+{% block body %}
+	<a id="create" href="/users/new">Create</a>
+{% endblock %}
