@@ -29,10 +29,10 @@ describe("Users", function () {
         await passwordConfirm.setValue("testpassword")
         const submit = await browser.$("#submit")
         await submit.click()
-        console.log("new page: ", await browser.getTitle())
+        browserLog("new page: ", await browser.getTitle())
         const signOut = await browser.$("#sign-out")
         await signOut.click()
-        console.log("new page: ", await browser.getTitle())
+        browserLog("new page: ", await browser.getTitle())
 
         await assertCanSignInWith("newuser", "testpassword")
     });
@@ -45,7 +45,7 @@ async function assertCanSignInWith(username, password) {
     await passwordField.setValue(password)
     const submit = await browser.$("#submit")
     await submit.click()
-    console.log("new page: ", await browser.getTitle())
+    browserLog("new page: ", await browser.getTitle())
 
     const signInMessage = await browser.$("#success")
     const signInMessageResult = await signInMessage.getText()

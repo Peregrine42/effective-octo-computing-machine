@@ -86,7 +86,7 @@ function sleep(interval) {
         process.exit();
     });
 
-    const path = process.argv[2]
+    const path = process.argv.slice(2).join(" ")
     if (!path) throw ("no path given for mocha")
 
     const result = shell.exec("MAVEN_OPTS=\"-Xmx1024m\" mvn clean package spring-boot:repackage")
