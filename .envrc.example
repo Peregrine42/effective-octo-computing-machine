@@ -1,0 +1,6 @@
+export DATABASE_HOST=
+export DATABASE_USERNAME=
+export DATABASE_PASSWORD=
+export DATABASE_NAME=effective_octo
+export DATABASE_PORT=5432
+export MAVEN_OPTS=-Xmx1024m

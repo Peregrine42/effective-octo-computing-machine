@@ -2,16 +2,15 @@
 
 Install the dependencies listed in the `.sdkmanrc` file.
 Install the NodeJS dependencies listed in the `.nvmrc` file.
+Install Postgres 12.
+Install direnv.
 
-Run:
+Create a copy of the `.envrc.example` file called `.envrc`. Fill in the appropriate environment variables.
+
+Then, run:
 ```
+direnv allow
 npm install
-```
-
-# Start
-
-```
-MAVEN_OPTS="-Xmx1024m" mvn spring-boot:run
 ```
 
 # Test
@@ -19,4 +18,16 @@ MAVEN_OPTS="-Xmx1024m" mvn spring-boot:run
 ### Integration
 ```
 npm run test
+```
+
+# Build
+
+```
+mvn clean package spring-boot:repackage
+```
+
+# Start
+
+```
+java -jar target/*.jar -Xmx1024m
 ```

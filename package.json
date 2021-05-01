@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node test/helpers/webdriver.io.js test/suite/"
+    "test": "node test/helpers/webdriver.io.js test/suite/",
+    "sequelize": "sequelize",
+    "migrate": "sequelize db:migrate",
+    "rollback": "sequelize db:rollback"
   },
   "repository": {
     "type": "git",
@@ -21,6 +24,9 @@
     "chai": "^4.3.4",
     "geckodriver": "^1.22.3",
     "mocha": "^6.2.3",
+    "pg": "^8.6.0",
+    "sequelize": "^6.6.2",
+    "sequelize-cli": "^6.2.0",
     "shelljs": "^0.8.4",
     "tree-kill": "^1.2.2",
     "webdriverio": "^7.5.1"
