@@ -38,7 +38,7 @@ async function deleteEverything() {
 }
 
 async function poll(url, expectedErrorCode = null) {
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 30; i++) {
         try {
             debug("getting...")
             await axios.get(url)
@@ -70,6 +70,8 @@ function sleep(interval) {
 }
 
 (async () => {
+    axios.defaults.timeout = 500;
+
     if (process.platform === "win32") {
         var rl = require("readline").createInterface({
             input: process.stdin,
