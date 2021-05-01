@@ -1,5 +1,7 @@
 package effectiveoctocomputingmachine;
 
+import java.util.Properties;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -7,6 +9,12 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 @SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
 public class Application {
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication application = new SpringApplication(Application.class);
+
+        Properties properties = new Properties();
+        properties.put("server.servlet.session.cookie.name", "EFFECTIVECOOKIE");
+        application.setDefaultProperties(properties);
+
+        application.run(args);
     }
 }

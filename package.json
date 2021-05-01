@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "nightwatch --env integration"
+    "test": "node test/helpers/webdriver.io.js test/suite/"
   },
   "repository": {
     "type": "git",
@@ -18,7 +18,9 @@
   "homepage": "https://github.com/Peregrine42/effective-octo-computing-machine#readme",
   "devDependencies": {
     "axios": "^0.21.1",
+    "chai": "^4.3.4",
     "geckodriver": "^1.22.3",
+    "mocha": "^6.2.3",
     "nightwatch": "^1.6.3",
     "shelljs": "^0.8.4",
     "tree-kill": "^1.2.2",

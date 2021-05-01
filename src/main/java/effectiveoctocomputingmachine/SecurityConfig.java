@@ -21,6 +21,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication().withUser("testuser").password(passwordEncoder().encode("testpassword"))
+                .roles("ADMIN").and().withUser("newuser").password(passwordEncoder().encode("testpassword"))
                 .roles("ADMIN");
     }
 
@@ -33,6 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http.authorizeRequests().antMatchers("/sign-in").permitAll().anyRequest().authenticated().and().formLogin()
-                .loginPage("/sign-in").loginProcessingUrl("/sign-in").successHandler(successHandler());
+                .loginPage("/sign-in").loginProcessingUrl("/sign-in").successHandler(successHandler()).and().logout()
+                .logoutUrl("/sign-out");
     }
 }

@@ -1,6 +1,9 @@
 package effectiveoctocomputingmachine;
 
+import java.util.EnumSet;
+
 import javax.servlet.ServletContext;
+import javax.servlet.SessionTrackingMode;
 
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
@@ -15,5 +18,6 @@ public class ApplicationInitializer implements WebApplicationInitializer {
         sc.addListener(new ContextLoaderListener(root));
         sc.addFilter("securityFilter", new DelegatingFilterProxy("springSecurityFilterChain"))
                 .addMappingForUrlPatterns(null, false, "/*");
+        sc.setSessionTrackingModes(EnumSet.of(SessionTrackingMode.COOKIE));
     }
 }

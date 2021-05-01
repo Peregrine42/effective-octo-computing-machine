@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.example</groupId>
     <artifactId>effective-octo</artifactId>
-    <version>0.0.1</version>
+    <version>0.1.0</version>
     <name>effective-octo-computing-machine</name>
     <description>An application</description>
     <properties>

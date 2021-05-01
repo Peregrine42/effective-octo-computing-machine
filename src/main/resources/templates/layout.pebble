@@ -17,6 +17,7 @@
 		{% endif %}
 		{% if request.userPrincipal.authenticated %}
 			<form method="post" accept-charset="UTF-8" action="/sign-out">
+				<input type="hidden" name="{{request.getAttribute('_csrf').parameterName}}" value="{{request.getAttribute('_csrf').token}}"/>
 				<input id="sign-out" type="submit" value="Sign out">
 			</form>
 		{% endif %}
