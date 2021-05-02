@@ -13,6 +13,7 @@ public class Application {
 
         Properties properties = new Properties();
         properties.put("server.servlet.session.cookie.name", "EFFECTIVECOOKIE");
+        properties.put("spring.jpa.open-in-view", false);
         application.setDefaultProperties(properties);
 
         application.run(args);

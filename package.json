@@ -7,7 +7,7 @@
     "test": "node test/helpers/webdriver.io.js test/suite/",
     "sequelize": "sequelize",
     "migrate": "sequelize db:migrate",
-    "rollback": "sequelize db:rollback"
+    "rollback": "sequelize db:migrate:undo"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Peregrine42/effective-octo-computing-machine#readme",
   "devDependencies": {
+    "argon2": "^0.27.2",
     "axios": "^0.21.1",
     "chai": "^4.3.4",
     "geckodriver": "^1.22.3",

@@ -38,7 +38,7 @@ async function deleteEverything() {
 }
 
 async function poll(url, expectedErrorCode = null) {
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 120; i++) {
         try {
             debug("getting...")
             await axios.get(url)

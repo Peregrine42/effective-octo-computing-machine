@@ -2,6 +2,8 @@ const { remote } = require('webdriverio')
 const expect = require('chai').expect
 const { browserLog } = require("../../../helpers/browserLog")
 const { buildBrowser } = require("../../../helpers/buildBrowser")
+const argon2 = require("argon2")
+const Sequelize = require("sequelize")
 
 let browser
 
@@ -11,6 +13,63 @@ beforeEach(async function () {
 
 describe("Users", function () {
     it('creates a new user', async function () {
+        const sequelize = new Sequelize(
+            process.env.DATABASE_NAME,
+            process.env.DATABASE_USERNAME,
+            process.env.DATABASE_PASSWORD,
+            {
+                host: process.env.DATABASE_HOST,
+                port: process.env.DATABASE_PORT,
+                dialect: 'postgres'
+            }
+        );
+
+        await sequelize.query(
+            `
+              delete from roles
+            `,
+        );
+
+        await sequelize.query(
+            `
+              delete from users
+            `,
+        );
+
+        await sequelize.query(
+            `
+              insert into users (
+                  username,
+                  encrypted_password,
+                  enabled
+              ) values (
+                  'testuser',
+                  $password,
+                  't'
+              )
+            `,
+            {
+                bind: { password: await encrypt("testpassword") }
+            }
+        );
+
+        await sequelize.query(
+            `
+              insert into roles (
+                  username,
+                  authority,
+                  enabled
+              ) values (
+                  'testuser',
+                  'ADMIN',
+                  't'
+              )
+            `,
+            {
+                bind: {}
+            }
+        );
+
         await browser.url("localhost:8080");
         await assertCanSignInWith("testuser", "testpassword")
         browserLog("new page: ", await browser.getTitle())
@@ -50,4 +109,9 @@ async function assertCanSignInWith(username, password) {
     const signInMessage = await browser.$("#success")
     const signInMessageResult = await signInMessage.getText()
     expect(signInMessageResult).to.equal("Sign in complete")
+}
+
+async function encrypt(password) {
+    const result = await argon2.hash(password, { type: argon2.argon2id })
+    return result
 }
