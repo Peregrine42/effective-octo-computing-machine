@@ -60,6 +60,13 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.68</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <version>5.4.6</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

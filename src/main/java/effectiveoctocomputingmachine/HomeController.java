@@ -2,11 +2,12 @@ package effectiveoctocomputingmachine;
 
 import java.util.HashMap;
 
-import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceException;
 import javax.persistence.Tuple;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -48,18 +49,23 @@ public class HomeController {
 
         String encryptedPassword = security.passwordEncoder().encode(password);
 
-        entityManager.getTransaction().begin();
-        entityManager
-                .createNativeQuery(
-                        "insert into users (username, encrypted_password, enabled) values (:username, :password, 't')",
-                        Tuple.class)
-                .setParameter("username", username).setParameter("password", encryptedPassword).executeUpdate();
-        entityManager
-                .createNativeQuery(
-                        "insert into roles (username, authority, enabled) values (:username, :authority, 't')",
-                        Tuple.class)
-                .setParameter("username", username).setParameter("authority", "USER").executeUpdate();
-        entityManager.getTransaction().commit();
+        try {
+            entityManager.getTransaction().begin();
+            entityManager.createNativeQuery(
+                    "insert into users (username, encrypted_password, enabled) values (:username, :password, 't')",
+                    Tuple.class).setParameter("username", username).setParameter("password", encryptedPassword)
+                    .executeUpdate();
+            entityManager
+                    .createNativeQuery(
+                            "insert into roles (username, authority, enabled) values (:username, :authority, 't')",
+                            Tuple.class)
+                    .setParameter("username", username).setParameter("authority", "USER").executeUpdate();
+            entityManager.getTransaction().commit();
+        } catch (PersistenceException e) {
+            if (e.getCause().getCause().getMessage().contains("Key (username)=(username) already exists.")) {
+                return new ModelAndView("new", new HashMap<String, String>());
+            }
+        }
 
         return new ModelAndView("redirect:/users", new HashMap<String, String>());
     }
