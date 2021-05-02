@@ -4,9 +4,9 @@ module.exports = {
       `
         create table users (
             id serial,
-            username text unique,
-            encrypted_password text,
-            enabled boolean
+            username text unique not null,
+            encrypted_password text not null,
+            enabled boolean default true
         )
       `
     );

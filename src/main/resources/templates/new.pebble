@@ -21,9 +21,9 @@
 		<input id="password" type="password" name="password">
 
 		<h3>
-			<label for="password-confirm">Confirm Password</label>
+			<label for="passwordConfirm">Confirm Password</label>
 		</h3>
-		<input id="password-confirm" type="password" name="password-confirm">
+		<input id="passwordConfirm" type="password" name="passwordConfirm">
 
 		<input id="submit" type="submit" value="Submit">
 	</form>

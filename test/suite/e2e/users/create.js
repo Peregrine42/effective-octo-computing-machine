@@ -84,7 +84,7 @@ describe("Users", function () {
         await username.setValue("newuser")
         const password = await browser.$("#password")
         await password.setValue("testpassword")
-        const passwordConfirm = await browser.$("#password-confirm")
+        const passwordConfirm = await browser.$("#passwordConfirm")
         await passwordConfirm.setValue("testpassword")
         const submit = await browser.$("#submit")
         await submit.click()

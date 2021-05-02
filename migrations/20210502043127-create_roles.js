@@ -6,10 +6,10 @@ module.exports = {
       `
         create table roles (
             id serial,
-            username text unique,
+            username text unique not null,
             FOREIGN KEY (username) REFERENCES users(username),
-            authority text,
-            enabled boolean
+            authority text not null,
+            enabled boolean default true
         );
         CREATE UNIQUE INDEX role_username_authority on roles (username,authority)
       `
