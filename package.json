@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node test/helpers/webdriver.io.js test/suite/",
+    "test:unit": "mvn test",
+    "test:integration": "node test/helpers/webdriver.io.js test/suite/",
+    "test": "npm run test:unit && npm run test:integration",
     "sequelize": "sequelize",
     "migrate": "sequelize db:migrate",
     "rollback": "sequelize db:migrate:undo"

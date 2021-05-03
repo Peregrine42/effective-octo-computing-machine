@@ -1,4 +1,4 @@
-package effectiveoctocomputingmachine;
+package effectiveoctocomputingmachine.authconfig;
 
 import java.io.IOException;
 

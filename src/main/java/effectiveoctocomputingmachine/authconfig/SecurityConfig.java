@@ -1,4 +1,4 @@
-package effectiveoctocomputingmachine;
+package effectiveoctocomputingmachine.authconfig;
 
 import javax.sql.DataSource;
 

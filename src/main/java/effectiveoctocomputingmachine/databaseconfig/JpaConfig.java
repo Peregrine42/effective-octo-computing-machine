@@ -1,4 +1,4 @@
-package effectiveoctocomputingmachine;
+package effectiveoctocomputingmachine.databaseconfig;
 
 import javax.sql.DataSource;
 

@@ -91,7 +91,7 @@ function sleep(interval) {
     const path = process.argv.slice(2).join(" ")
     if (!path) throw ("no path given for mocha")
 
-    const result = shell.exec("mvn clean package spring-boot:repackage")
+    const result = shell.exec("mvn clean package spring-boot:repackage -DskipTests")
     if (result.code !== 0) throw new Error("Server failed to compile")
     child = shell.exec("java -jar target/*.jar -Xmx1024m --debug",
         {

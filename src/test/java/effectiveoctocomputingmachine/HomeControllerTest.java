@@ -9,54 +9,57 @@ import javax.persistence.Tuple;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.servlet.ModelAndView;
 
-@SpringBootTest(classes = Application.class)
+import effectiveoctocomputingmachine.authconfig.SecurityConfig;
+
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class HomeControllerTest {
 
-    @Autowired
-    HomeController homeController;
+	@Autowired
+	HomeController homeController;
 
-    @Autowired
-    EntityManagerFactory entityManagerFactory;
+	@Autowired
+	EntityManagerFactory entityManagerFactory;
 
-    @Autowired
-    private SecurityConfig security;
+	@Autowired
+	private SecurityConfig security;
 
-    @WithMockUser(username = "testuser", authorities = { "ADMIN" })
-    public void testUserCreateWithDifferingPasswordsEntered() {
-        ModelAndView result = homeController.create("username", "password", "different-password");
-        assertEquals("new", result.getViewName());
-    }
+	@WithMockUser(username = "testuser", authorities = { "ADMIN" })
+	public void testUserCreateWithDifferingPasswordsEntered() {
+		ModelAndView result = homeController.create("username", "password", "different-password");
+		assertEquals("new", result.getViewName());
+	}
 
-    @Test
-    @WithMockUser(username = "testuser", authorities = { "ADMIN" })
-    public void testUserCreateExistingUsernameEntered() {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+	@Test
+	@WithMockUser(username = "testuser", authorities = { "ADMIN" })
+	public void testUserCreateExistingUsernameEntered() {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-        entityManager.getTransaction().begin();
-        entityManager.createNativeQuery("delete from roles", Tuple.class).executeUpdate();
-        entityManager.createNativeQuery("delete from users", Tuple.class).executeUpdate();
-        entityManager.getTransaction().commit();
+		entityManager.getTransaction().begin();
+		entityManager.createNativeQuery("delete from roles", Tuple.class).executeUpdate();
+		entityManager.createNativeQuery("delete from users", Tuple.class).executeUpdate();
+		entityManager.getTransaction().commit();
 
-        String encryptedPassword = security.passwordEncoder().encode("password");
+		String encryptedPassword = security.passwordEncoder().encode("password");
 
-        entityManager.getTransaction().begin();
-        entityManager
-                .createNativeQuery(
-                        "insert into users (username, encrypted_password, enabled) values (:username, :password, 't')",
-                        Tuple.class)
-                .setParameter("username", "username").setParameter("password", encryptedPassword).executeUpdate();
-        entityManager
-                .createNativeQuery(
-                        "insert into roles (username, authority, enabled) values (:username, :authority, 't')",
-                        Tuple.class)
-                .setParameter("username", "username").setParameter("authority", "USER").executeUpdate();
-        entityManager.getTransaction().commit();
+		entityManager.getTransaction().begin();
+		entityManager
+				.createNativeQuery(
+						"insert into users (username, encrypted_password, enabled) values (:username, :password, 't')",
+						Tuple.class)
+				.setParameter("username", "username").setParameter("password", encryptedPassword).executeUpdate();
+		entityManager
+				.createNativeQuery(
+						"insert into roles (username, authority, enabled) values (:username, :authority, 't')",
+						Tuple.class)
+				.setParameter("username", "username").setParameter("authority", "USER").executeUpdate();
+		entityManager.getTransaction().commit();
 
-        ModelAndView result = homeController.create("username", "password", "password");
-        assertEquals("new", result.getViewName());
-    }
+		ModelAndView result = homeController.create("username", "password", "password");
+		assertEquals("new", result.getViewName());
+	}
 
 }

@@ -1,4 +1,4 @@
-package effectiveoctocomputingmachine;
+package effectiveoctocomputingmachine.authconfig;
 
 import java.util.EnumSet;
 
@@ -10,7 +10,7 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
-public class ApplicationInitializer implements WebApplicationInitializer {
+public class AuthInitializer implements WebApplicationInitializer {
     @Override
     public void onStartup(ServletContext sc) {
         AnnotationConfigWebApplicationContext root = new AnnotationConfigWebApplicationContext();
