@@ -6,13 +6,13 @@ const Sequelize = require("sequelize")
 
 let browser
 
-describe("Users", function () {
+describe("Auth", function () {
     beforeEach(async () => {
         browser = await buildBrowser()
         await browser.deleteCookies()
     })
 
-    it('creates a new user', async function () {
+    it('rejects the user when they enter an incorrect password', async function () {
         const sequelize = new Sequelize(
             process.env.DATABASE_NAME,
             process.env.DATABASE_USERNAME,
@@ -71,33 +71,13 @@ describe("Users", function () {
         );
 
         await browser.url("localhost:8080");
-        await assertCanSignInWith("testuser", "testpassword")
+        const result = await tryToSignInWith("testuser", "wrong-testpassword")
         browserLog("new page: ", await browser.getTitle())
-
-        const users = await browser.$("#users")
-        await users.click()
-        browserLog("new page: ", await browser.getTitle())
-        const create = await browser.$("#create")
-        await create.click()
-        browserLog("new page: ", await browser.getTitle())
-        const username = await browser.$("#username")
-        await username.setValue("newuser")
-        const password = await browser.$("#password")
-        await password.setValue("testpassword")
-        const passwordConfirm = await browser.$("#passwordConfirm")
-        await passwordConfirm.setValue("testpassword")
-        const submit = await browser.$("#submit")
-        await submit.click()
-        browserLog("new page: ", await browser.getTitle())
-        const signOut = await browser.$("#sign-out")
-        await signOut.click()
-        browserLog("new page: ", await browser.getTitle())
-
-        await assertCanSignInWith("newuser", "testpassword")
+        expect(result).to.equal(false)
     });
 });
 
-async function assertCanSignInWith(username, password) {
+async function tryToSignInWith(username, password) {
     const usernameField = await browser.$("#username")
     await usernameField.setValue(username)
     const passwordField = await browser.$("#password")
@@ -107,8 +87,11 @@ async function assertCanSignInWith(username, password) {
     browserLog("new page: ", await browser.getTitle())
 
     const signInMessage = await browser.$("#success")
-    const signInMessageResult = await signInMessage.getText()
-    expect(signInMessageResult).to.equal("Sign in complete")
+    if (await signInMessage.isExisting()) {
+        return (await signInMessage.getText()) === "Sign in complete"
+    } else {
+        return false
+    }
 }
 
 async function encrypt(password) {

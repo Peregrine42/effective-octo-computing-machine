@@ -75,5 +75,4 @@ public class HomeControllerTest {
 		assertThat(response, containsString("Users - New"));
 		assertThat(response, containsString("A user with that username already exists."));
 	}
-
 }

@@ -34,7 +34,7 @@ async function deleteEverything() {
         debug("deleted server")
     }
 
-    console.log("cleanup complete")
+    console.log("cleanup")
 }
 
 async function poll(url, expectedErrorCode = null) {
