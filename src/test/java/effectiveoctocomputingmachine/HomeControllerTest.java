@@ -1,6 +1,9 @@
 package effectiveoctocomputingmachine;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
+import java.io.UnsupportedEncodingException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -11,7 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import effectiveoctocomputingmachine.authconfig.SecurityConfig;
 
@@ -19,7 +26,7 @@ import effectiveoctocomputingmachine.authconfig.SecurityConfig;
 public class HomeControllerTest {
 
 	@Autowired
-	HomeController homeController;
+	private WebApplicationContext webApplicationContext;
 
 	@Autowired
 	EntityManagerFactory entityManagerFactory;
@@ -27,15 +34,19 @@ public class HomeControllerTest {
 	@Autowired
 	private SecurityConfig security;
 
+	@Test
 	@WithMockUser(username = "testuser", authorities = { "ADMIN" })
-	public void testUserCreateWithDifferingPasswordsEntered() {
-		ModelAndView result = homeController.create("username", "password", "different-password");
-		assertEquals("new", result.getViewName());
+	public void testUserCreateWithDifferingPasswordsEntered() throws Exception {
+		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+		String response = mockMvc.perform(post("/users").param("username", "username").param("password", "password")
+				.param("passwordConfirm", "different-password")).andReturn().getResponse().getContentAsString();
+		assertThat(response, containsString("Users - New"));
+		assertThat(response, containsString("The password confirmation must exactly match the original password."));
 	}
 
 	@Test
 	@WithMockUser(username = "testuser", authorities = { "ADMIN" })
-	public void testUserCreateExistingUsernameEntered() {
+	public void testUserCreateExistingUsernameEntered() throws UnsupportedEncodingException, Exception {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		entityManager.getTransaction().begin();
@@ -58,8 +69,11 @@ public class HomeControllerTest {
 				.setParameter("username", "username").setParameter("authority", "USER").executeUpdate();
 		entityManager.getTransaction().commit();
 
-		ModelAndView result = homeController.create("username", "password", "password");
-		assertEquals("new", result.getViewName());
+		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+		String response = mockMvc.perform(post("/users").param("username", "username").param("password", "password")
+				.param("passwordConfirm", "password")).andReturn().getResponse().getContentAsString();
+		assertThat(response, containsString("Users - New"));
+		assertThat(response, containsString("A user with that username already exists."));
 	}
 
 }

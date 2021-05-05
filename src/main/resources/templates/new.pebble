@@ -3,10 +3,6 @@
 {% set title = "Users - New" %}
 
 {% block body %}
-	{% if errorMessage is defined %}
-		<p>{{ errorMessage }}</p>
-	{% endif %}
-
 	<form method="post" accept-charset="UTF-8" action="/users">
 		<input type="hidden" name="{{request.getAttribute('_csrf').parameterName}}" value="{{request.getAttribute('_csrf').token}}"/>
 

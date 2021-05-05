@@ -15,6 +15,19 @@
 		{% if success is not empty %}
 			<div id="success">{{ success }}</div>
 		{% endif %}
+
+		{% if errors is not empty %}
+			<div id="errors">
+				{% for error in errors %}
+					<div class="error">{{ error }}</div>
+				{% endfor %}
+			</div>
+		{% endif %}
+
+		{% if info is not empty %}
+			<div id="info">{{ info }}</div>
+		{% endif %}
+
 		{% if request.userPrincipal.authenticated %}
 			<form method="post" accept-charset="UTF-8" action="/sign-out">
 				<input type="hidden" name="{{request.getAttribute('_csrf').parameterName}}" value="{{request.getAttribute('_csrf').token}}"/>
