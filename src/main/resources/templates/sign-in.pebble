@@ -4,7 +4,7 @@
 
 {% block body %}
 	<form method="post" accept-charset="UTF-8" action="/sign-in">
-		<input type="hidden" name="{{request.getAttribute('_csrf').parameterName}}" value="{{request.getAttribute('_csrf').token}}"/>
+		<input id="csrf" type="hidden" name="{{request.getAttribute('_csrf').parameterName}}" value="{{request.getAttribute('_csrf').token}}"/>
 
 		<h3>
 			<label for="username">Username</label>

@@ -1,77 +1,28 @@
 const expect = require('chai').expect
 const { browserLog } = require("../../../helpers/browserLog")
 const { buildBrowser } = require("../../../helpers/buildBrowser")
-const argon2 = require("argon2")
-const Sequelize = require("sequelize")
+const { getDbConnection } = require("../../../helpers/getDbConnection")
+const { tryToSignInWith } = require("../../../helpers/tryToSignInWith")
+const { resetDb } = require("../../../helpers/resetDb")
+const { addTestUser } = require("../../../helpers/addTestUser")
 
 let browser
+let sequelize
 
 describe("Users", function () {
     beforeEach(async () => {
         browser = await buildBrowser()
         await browser.deleteCookies()
+        sequelize = getDbConnection()
     })
 
     it('creates a new user', async function () {
-        const sequelize = new Sequelize(
-            process.env.DATABASE_NAME,
-            process.env.DATABASE_USERNAME,
-            process.env.DATABASE_PASSWORD,
-            {
-                host: process.env.DATABASE_HOST,
-                port: process.env.DATABASE_PORT,
-                dialect: 'postgres'
-            }
-        );
+        await resetDb(sequelize)
+        await addTestUser(sequelize, "testuser", "testpassword")
+        await browser.url("localhost:8080")
 
-        await sequelize.query(
-            `
-              delete from roles
-            `,
-        );
-
-        await sequelize.query(
-            `
-              delete from users
-            `,
-        );
-
-        await sequelize.query(
-            `
-              insert into users (
-                  username,
-                  encrypted_password,
-                  enabled
-              ) values (
-                  'testuser',
-                  $password,
-                  't'
-              )
-            `,
-            {
-                bind: { password: await encrypt("testpassword") }
-            }
-        );
-
-        await sequelize.query(
-            `
-              insert into roles (
-                  username,
-                  authority,
-                  enabled
-              ) values (
-                  'testuser',
-                  'ADMIN',
-                  't'
-              )
-            `,
-            {
-                bind: {}
-            }
-        );
-
-        await browser.url("localhost:8080");
-        await assertCanSignInWith("testuser", "testpassword")
+        const loginResult = await tryToSignInWith("testuser", "testpassword")
+        if (!loginResult) throw new Error("Cannot sign in as test user.")
         browserLog("new page: ", await browser.getTitle())
 
         const users = await browser.$("#users")
@@ -93,25 +44,7 @@ describe("Users", function () {
         await signOut.click()
         browserLog("new page: ", await browser.getTitle())
 
-        await assertCanSignInWith("newuser", "testpassword")
+        const result = await tryToSignInWith("newuser", "testpassword")
+        expect(result).to.equal(true)
     });
 });
-
-async function assertCanSignInWith(username, password) {
-    const usernameField = await browser.$("#username")
-    await usernameField.setValue(username)
-    const passwordField = await browser.$("#password")
-    await passwordField.setValue(password)
-    const submit = await browser.$("#submit")
-    await submit.click()
-    browserLog("new page: ", await browser.getTitle())
-
-    const signInMessage = await browser.$("#success")
-    const signInMessageResult = await signInMessage.getText()
-    expect(signInMessageResult).to.equal("Sign in complete")
-}
-
-async function encrypt(password) {
-    const result = await argon2.hash(password, { type: argon2.argon2id })
-    return result
-}

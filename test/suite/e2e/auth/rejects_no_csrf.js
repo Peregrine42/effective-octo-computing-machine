@@ -16,11 +16,16 @@ describe("Auth", function () {
         sequelize = getDbConnection()
     })
 
-    it('rejects the user when they enter an incorrect password', async function () {
+    it("rejects the user when CSRF isn't present", async function () {
         await resetDb(sequelize)
         await addTestUser(sequelize, "testuser", "testpassword")
         await browser.url("localhost:8080")
-        const result = await tryToSignInWith("testuser", "wrong-testpassword")
+
+        const script = `
+            document.getElementById("csrf").remove()
+        `
+        await browser.execute(script)
+        const result = await tryToSignInWith("testuser", "testpassword")
         browserLog("new page: ", await browser.getTitle())
         expect(result).to.equal(false)
     });
