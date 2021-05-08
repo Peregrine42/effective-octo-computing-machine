@@ -4,4 +4,12 @@
 
 {% block body %}
 	<a id="create" href="/users/new">Create</a>
+	<table>
+		{% for user in users %}
+			<tr>
+				<td>{{user[0]}}</td>
+				<td>{{user[1]}}</td>
+			</tr>
+		{% endfor %}
+	</table>
 {% endblock %}

@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import effectiveoctocomputingmachine.authconfig.SecurityConfig;
@@ -35,6 +36,49 @@ public class HomeControllerTest {
 	private SecurityConfig security;
 
 	@Test
+	@WithMockUser(username = "testuser")
+	public void testListingUsers() throws UnsupportedEncodingException, Exception {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		entityManager.getTransaction().begin();
+		entityManager.createNativeQuery("delete from roles").executeUpdate();
+		entityManager.createNativeQuery("delete from users").executeUpdate();
+		entityManager.getTransaction().commit();
+
+		String encryptedPassword = security.passwordEncoder().encode("password");
+
+		entityManager.getTransaction().begin();
+		entityManager
+				.createNativeQuery(
+						"insert into users (username, encrypted_password, enabled) values (:username, :password, 't')",
+						Tuple.class)
+				.setParameter("username", "username").setParameter("password", encryptedPassword).executeUpdate();
+		entityManager
+				.createNativeQuery(
+						"insert into roles (username, authority, enabled) values (:username, :authority, 't')",
+						Tuple.class)
+				.setParameter("username", "username").setParameter("authority", "USER").executeUpdate();
+
+		entityManager
+				.createNativeQuery(
+						"insert into users (username, encrypted_password, enabled) values (:username, :password, 't')",
+						Tuple.class)
+				.setParameter("username", "user2name").setParameter("password", encryptedPassword).executeUpdate();
+		entityManager
+				.createNativeQuery(
+						"insert into roles (username, authority, enabled) values (:username, :authority, 't')",
+						Tuple.class)
+				.setParameter("username", "user2name").setParameter("authority", "USER").executeUpdate();
+		entityManager.getTransaction().commit();
+
+		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+		String response = mockMvc.perform(get("/users")).andReturn().getResponse().getContentAsString();
+		assertThat(response, containsString("username"));
+		assertThat(response, containsString("user2name"));
+		assertThat(response, containsString("USER"));
+	}
+
+	@Test
 	@WithMockUser(username = "testuser", authorities = { "ADMIN" })
 	public void testUserCreateWithDifferingPasswordsEntered() throws Exception {
 		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -45,13 +89,22 @@ public class HomeControllerTest {
 	}
 
 	@Test
+	@WithMockUser(username = "testuser", authorities = { "USER" })
+	public void testRejectUserCreateWithoutSufficientPermissions() throws Exception {
+		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+		String response = mockMvc.perform(post("/users").param("username", "username").param("password", "password")
+				.param("passwordConfirm", "password")).andReturn().getResponse().getContentAsString();
+		assertThat(response, containsString("Forbidden"));
+	}
+
+	@Test
 	@WithMockUser(username = "testuser", authorities = { "ADMIN" })
 	public void testUserCreateExistingUsernameEntered() throws UnsupportedEncodingException, Exception {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		entityManager.getTransaction().begin();
-		entityManager.createNativeQuery("delete from roles", Tuple.class).executeUpdate();
-		entityManager.createNativeQuery("delete from users", Tuple.class).executeUpdate();
+		entityManager.createNativeQuery("delete from roles").executeUpdate();
+		entityManager.createNativeQuery("delete from users").executeUpdate();
 		entityManager.getTransaction().commit();
 
 		String encryptedPassword = security.passwordEncoder().encode("password");

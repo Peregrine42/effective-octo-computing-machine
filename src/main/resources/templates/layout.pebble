@@ -11,6 +11,12 @@
 		</title>
 	</head>
 
+	<style>
+		body {
+			font-family: sans-serif;
+		}
+	</style>
+
 	<body>
 		{% if success is not empty %}
 			<div id="success">{{ success }}</div>
