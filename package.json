@@ -1,37 +1,50 @@
 {
-  "name": "effective-octo-computing-machine-test",
-  "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test:unit": "mvn test",
-    "test:integration": "node test/helpers/webdriver.io.js test/suite/",
-    "test": "npm run test:unit && npm run test:integration",
-    "sequelize": "sequelize",
-    "migrate": "sequelize db:migrate",
-    "rollback": "sequelize db:migrate:undo"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Peregrine42/effective-octo-computing-machine.git"
-  },
-  "author": "Duncan Fermor",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Peregrine42/effective-octo-computing-machine/issues"
-  },
-  "homepage": "https://github.com/Peregrine42/effective-octo-computing-machine#readme",
-  "devDependencies": {
-    "argon2": "^0.27.2",
-    "axios": "^0.21.1",
-    "chai": "^4.3.4",
-    "geckodriver": "^1.22.3",
-    "mocha": "^6.2.3",
-    "pg": "^8.6.0",
-    "sequelize": "^6.6.2",
-    "sequelize-cli": "^6.2.0",
-    "shelljs": "^0.8.4",
-    "tree-kill": "^1.2.2",
-    "webdriverio": "^7.5.1"
-  }
+	"name": "effective-octo-computing-machine-test",
+	"version": "0.1.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test:unit": "mvn test",
+		"start": "node src/app.js",
+		"test": "node test/helpers/webdriver.io.js test/suite/",
+		"test:specific": "node test/helpers/webdriver.io.js",
+		"sequelize": "sequelize",
+		"migrate": "sequelize db:migrate",
+		"rollback": "sequelize db:migrate:undo"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Peregrine42/effective-octo-computing-machine.git"
+	},
+	"author": "Duncan Fermor",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/Peregrine42/effective-octo-computing-machine/issues"
+	},
+	"homepage": "https://github.com/Peregrine42/effective-octo-computing-machine#readme",
+	"devDependencies": {
+		"argon2": "^0.27.2",
+		"axios": "^0.21.1",
+		"chai": "^4.3.4",
+		"geckodriver": "^1.22.3",
+		"mocha": "^6.2.3",
+		"pg": "^8.6.0",
+		"shelljs": "^0.8.4",
+		"tree-kill": "^1.2.2",
+		"webdriverio": "^7.5.1"
+	},
+	"dependencies": {
+		"cookie-parser": "^1.4.5",
+		"csurf": "^1.11.0",
+		"express": "^4.17.1",
+		"express-csp-header": "^4.1.0",
+		"express-ejs-layouts": "^2.5.0",
+		"express-session": "^1.17.1",
+		"helmet": "^4.6.0",
+		"morgan": "^1.10.0",
+		"nunjucks": "^3.2.3",
+		"rate-limiter-flexible": "^2.2.2",
+		"sequelize": "^6.6.2",
+		"sequelize-cli": "^6.2.0"
+	}
 }

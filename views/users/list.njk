@@ -1,0 +1,13 @@
+{% extends "../layout.njk" %}
+{% set title = "Users" %}
+{% block body %}
+    <a id="create" href="/users/new">Create</a>
+    <table>
+        {% for user in users %}
+            <tr id="list-item-{{ loop.index0 }}">
+                <td>{{ user.username }}</td>
+                <td>{{ user.authorities }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

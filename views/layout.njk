@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>
+            Effective Octo - {{ title }}
+        </title>
+        {% if scriptEntry %}
+            <script src="{{ scriptEntry }}" type="text/javascript" nonce="{{ csp.nonce }}"></script>
+        {% endif %}
+        <link href="/css/base.css" rel="stylesheet" nonce="{{ csp.nonce }}"/>
+    </head>
+    <body>
+        {% if success %}
+            <div id="success">{{ success }}</div>
+        {% endif %}
+        {% if errors %}
+            <div id="errors">
+                {% for error in errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if info %}
+            <div id="info">{{ info }}</div>
+        {% endif %}
+        {% if authenticated %}
+            <form method="post" accept-charset="UTF-8" action="/auth/sign-out">
+                <input type="hidden" name="{{ csrf.parameterName }}" value="{{ csrf.token }}"/>
+                <input id="sign-out" type="submit" value="Sign out">
+            </form>
+        {% endif %}
+        {% block body %}{% endblock %}
+    </body>
+</html>

@@ -3,9 +3,10 @@ tmp/
 tests_output/
 target/
 .classpath
-.settings
-.project
-.vscode
-.idea
+.settings/
+.project/
+.vscode/
+.idea/
 .envrc
-.factorypath
+certs/*
+!certs/.gitkeep

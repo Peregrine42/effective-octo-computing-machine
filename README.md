@@ -1,6 +1,5 @@
 # Setup
 
-Install the dependencies listed in the `.sdkmanrc` file.
 Install the NodeJS dependencies listed in the `.nvmrc` file.
 Install Postgres 12.
 Install direnv.
@@ -15,19 +14,14 @@ npm install
 
 # Test
 
-### Integration
 ```
-npm run test
+npm test
 ```
 
-# Build
-
-```
-mvn clean package spring-boot:repackage
-```
+See `package.json` for other testing commands.
 
 # Start
 
 ```
-java -jar target/*.jar -Xmx1024m
+npm start
 ```
