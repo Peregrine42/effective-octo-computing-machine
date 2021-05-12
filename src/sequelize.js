@@ -12,5 +12,6 @@ const sequelize = new Sequelize(
 )
 
 module.exports = {
-	sequelize
+	sequelize,
+	SequelizeUniqueConstraintError: Sequelize.UniqueConstraintError
 }

@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const { renderFormWithCSRF } = require("../renderFormWithCSRF")
-const { sequelize } = require("../sequelize")
+const { sequelize, SequelizeUniqueConstraintError } = require("../sequelize")
 const { encrypt } = require("../encrypt")
 
 router.get("/", async function (req, res) {
@@ -38,6 +38,7 @@ function validateUserForm(
 		username: [],
 		password: [],
 		authority: [],
+		general: []
 	}
 
 	if (password !== passwordConfirm) {
@@ -132,9 +133,11 @@ async function saveUser(authority, username, password, passwordConfirm) {
 			await t.commit()
 		} catch (e) {
 			await t.rollback()
-			console.error(e)
-			if (typeof (e) === "UniqueConstraintError") {
+			console.error(e.type)
+			if (e instanceof SequelizeUniqueConstraintError) {
 				errors.username.push("That username is already taken.")
+			} else {
+				errors.general.push("An unknown error occurred.")
 			}
 		}
 	}

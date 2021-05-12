@@ -1,6 +1,13 @@
 {% extends "../layout.njk" %}
 {% set title = "Users - New" %}
 {% block body %}
+    <div id="general-errors">
+        <ul>
+            {% for error in errors.general %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
     <form method="post" accept-charset="UTF-8" action="/users">
         <input type="hidden" name="{{ csrf.parameterName }}" value="{{ csrf.token }}"/>
         <h3>
