@@ -4,10 +4,10 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"test:unit": "mvn test",
 		"start": "node src/app.js",
-		"test": "node test/helpers/webdriver.io.js test/suite/",
-		"test:specific": "node test/helpers/webdriver.io.js",
+		"test": "npm run mocha -- test/suite/unit && npm run test:browser -- test/suite/e2e",
+		"test:browser": "node test/helpers/webdriver.io.js",
+		"mocha": "mocha --color --timeout 30000 --full-trace --recursive",
 		"sequelize": "sequelize",
 		"migrate": "sequelize db:migrate",
 		"rollback": "sequelize db:migrate:undo"
