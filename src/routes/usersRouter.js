@@ -4,6 +4,8 @@ const { renderFormWithCSRF } = require("../renderFormWithCSRF")
 const { sequelize, SequelizeUniqueConstraintError } = require("../sequelize")
 const { encrypt } = require("../encrypt")
 
+const VALID_ROLES = ["Admin", "Member"]
+
 router.get("/", async function (req, res) {
 	const users = await listUsers()
 	renderFormWithCSRF(req, res, "users/list", { users })
@@ -20,58 +22,90 @@ router.post("/", async function (req, res) {
 	if (success) {
 		res.redirect("/users")
 	} else {
-		renderFormWithCSRF(req, res, "users/new", { username, errors })
+		renderFormWithCSRF(req, res, "users/new", { username, authority, errors })
 	}
 })
 
 router.get("/new", function (req, res) {
-	renderFormWithCSRF(req, res, "users/new")
+	const errors = generateErrorsObj()
+	renderFormWithCSRF(req, res, "users/new", { errors })
 })
+
+function generateErrorsObj(validRoles = VALID_ROLES) {
+	return {
+		username: {
+			tooShort: {
+				desc: "Username must be longer than 3 characters.",
+			},
+			tooLong: {
+				desc: "Username must be shorter than 300 characters.",
+				hideByDefault: true
+			},
+			invalidChars: {
+				desc: "Please only use these characters: A-Z a-z 0-9 - _"
+			},
+			alreadyTaken: {
+				desc: "That username is already taken.",
+				hideByDefault: true
+			}
+		},
+		password: {
+			confirm: {
+				desc: "Password must match password confirmation."
+			},
+			tooShort: {
+				desc: "Password must be longer than 3 characters.",
+			},
+			tooLong: {
+				desc: "Pasword must be shorter than 300 characters.",
+				hideByDefault: true
+			},
+			invalidChars: {
+				desc: "Please only use these characters: A-Z a-z 0-9 - ! _ . , / \\"
+			}
+		},
+		authority: {
+			oneOf: {
+				desc: `Authority must be one of: ${validRoles.join(", ")}.`
+			},
+		},
+		general: []
+	}
+}
 
 function validateUserForm(
 	authority,
 	username,
 	password,
-	passwordConfirm
+	passwordConfirm,
+	validRoles = VALID_ROLES
 ) {
-	let errors = {
-		username: [],
-		password: [],
-		authority: [],
-		general: []
-	}
+	const errors = generateErrorsObj(validRoles)
 
-	if (password !== passwordConfirm) {
-		errors.password.push("Password must match password confirmation")
-	}
-	if (password.length < 12) {
-		errors.password.push("Password is too short - it must be longer than 12 characters.")
-	}
-	if (password.length >= 300) {
-		errors.password.push("Password is too long - it must be shorter than 300 characters.")
-	}
-	if (!password.match(/^[A-Za-z0-9\-\!\_\.\,\/\\]+$/)) {
-		errors.password.push("Password contains invalid characters. Please only use: A-Z a-z 0-9 - ! _ . , / \\")
-	}
 	if (username.length < 3) {
-		errors.username.push("Username is too short - it must be longer than 3 characters.")
+		errors.username.tooShort.error = true
 	}
 	if (username.length >= 300) {
-		errors.username.push("Username is too long - it must be shorter than 300 characters.")
+		errors.username.tooLong.error = true
 	}
 	if (!username.match(/^[A-Za-z0-9\_\-]+$/)) {
-		errors.username.push("Username contains invalid characters. Please only use: A-Z a-z 0-9 - _")
+		errors.username.invalidChars.error = true
 	}
-	if (authority.length < 3) {
-		errors.authority.push("Authority is too short - it must be longer than 1 character.")
+	if (password !== passwordConfirm) {
+		errors.password.confirm.error = true
 	}
-	if (authority.length >= 300) {
-		errors.authority.push("Authority is too long - it must be shorter than 300 characters.")
+	if (password.length < 12) {
+		errors.password.tooShort.error = true
 	}
-	if (!authority.match(/^[A-Za-z0-9\_\-]+$/)) {
-		errors.authority.push("Authority contains invalid characters. Please only use: A-Z a-z 0-9 - _")
+	if (password.length >= 300) {
+		errors.password.tooLong.error = true
 	}
-
+	if (!password.match(/^[A-Za-z0-9\-\!\_\.\,\/\\]+$/)) {
+		errors.password.invalidChars.error = true
+	}
+	if (!validRoles.map(vR => vR.toLowerCase()).includes(authority.toLowerCase())) {
+		errors.authority.oneOf.error = true
+	}
 	return errors
 }
 
@@ -127,7 +161,7 @@ async function saveUser(authority, username, password, passwordConfirm) {
 					);
 				`,
 				{
-					bind: { username, authority }
+					bind: { username, authority: authority.toLowerCase() }
 				}
 			)
 			await t.commit()
@@ -135,7 +169,7 @@ async function saveUser(authority, username, password, passwordConfirm) {
 			await t.rollback()
 			console.error(e.type)
 			if (e instanceof SequelizeUniqueConstraintError) {
-				errors.username.push("That username is already taken.")
+				errors.username.alreadyTaken.error = true
 			} else {
 				errors.general.push("An unknown error occurred.")
 			}
@@ -150,12 +184,17 @@ async function saveUser(authority, username, password, passwordConfirm) {
 }
 
 function noErrors(errorsObj) {
-	const keys = Object.keys(errorsObj)
-	let key
-	for (let i = 0; i < keys.length; i += 1) {
-		key = keys[i]
-		if (errorsObj[key].length > 0) {
-			return false
+	let sections = Object.keys(errorsObj)
+	let section
+	for (let j = 0; j < sections.length; j += 1) {
+		section = errorsObj[sections[j]]
+		let keys = Object.keys(section)
+		let key
+		for (let i = 0; i < keys.length; i += 1) {
+			key = keys[i]
+			if (section[key].error) {
+				return false
+			}
 		}
 	}
 	return true
@@ -180,5 +219,6 @@ async function listUsers() {
 
 module.exports = {
 	router,
-	validateUserForm
+	validateUserForm,
+	noErrors,
 }

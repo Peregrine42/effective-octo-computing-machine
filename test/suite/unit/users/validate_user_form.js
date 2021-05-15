@@ -1,4 +1,4 @@
-const { validateUserForm } = require("../../../../src/routes/usersRouter")
+const { validateUserForm, noErrors } = require("../../../../src/routes/usersRouter")
 const expect = require('chai').expect
 
 function stringRepeat(string, reps) {
@@ -12,84 +12,84 @@ function stringRepeat(string, reps) {
 describe("validateUserForm", function () {
 	it('attaches an error when the given username is invalid', function () {
 		expect(validateUserForm(
-			"admin",
+			"Admin",
 			"",
 			"passwordpassword",
 			"passwordpassword"
-		).username[0]).to.match(/Username is too short/)
+		).username.tooShort.error).to.equal(true)
 
 		expect(validateUserForm(
-			"admin",
+			"Admin",
 			"aa",
 			"passwordpassword",
 			"passwordpassword"
-		).username[0]).to.match(/Username is too short/)
+		).username.tooShort.error).to.equal(true)
 
 		const chars299 = stringRepeat("0123456789", 29) + "012345678"
 		expect(chars299.length).to.equal(299)
-		expect(validateUserForm(
-			"admin",
+		expect(noErrors(validateUserForm(
+			"Admin",
 			chars299,
-			"password",
+			"passwordpassword",
 			"passwordpassword"
-		).username).to.be.empty
+		))).to.equal(true)
 
 		const chars300 = stringRepeat("0123456789", 30)
 		expect(chars300.length).to.equal(300)
 		expect(validateUserForm(
-			"admin",
+			"Admin",
 			chars300,
 			"passwordpassword",
 			"passwordpassword"
-		).username[0]).to.match(/Username is too long/)
+		).username.tooLong.error).to.equal(true)
 
 		expect(validateUserForm(
-			"admin",
+			"Admin",
 			"aa%%%",
 			"passwordpassword",
 			"passwordpassword"
-		).username[0]).to.match(/Username contains invalid characters/)
+		).username.invalidChars.error).to.equal(true)
 	});
 
 	it('attaches an error when the given password is invalid', function () {
 		expect(validateUserForm(
-			"admin",
+			"Admin",
 			"usernameusername",
 			"",
 			""
-		).password[0]).to.match(/Password is too short/)
+		).password.tooShort.error).to.equal(true)
 
 		expect(validateUserForm(
-			"admin",
+			"Admin",
 			"usernameusername",
 			"aa",
 			"aa"
-		).password[0]).to.match(/Password is too short/)
+		).password.tooShort.error).to.equal(true)
 
 		const chars299 = stringRepeat("0123456789", 29) + "012345678"
 		expect(chars299.length).to.equal(299)
-		expect(validateUserForm(
-			"admin",
+		expect(noErrors(validateUserForm(
+			"Admin",
 			"usernameusername",
 			chars299,
 			chars299
-		).password).to.be.empty
+		))).to.equal(true)
 
 		const chars300 = stringRepeat("0123456789", 30)
 		expect(chars300.length).to.equal(300)
 		expect(validateUserForm(
-			"admin",
+			"Admin",
 			"usernameusername",
 			chars300,
 			chars300,
-		).password[0]).to.match(/Password is too long/)
+		).password.tooLong.error).to.equal(true)
 
 		expect(validateUserForm(
-			"admin",
+			"Admin",
 			"usernameusername",
 			"passwordpassword&&&",
 			"passwordpassword&&&"
-		).password[0]).to.match(/Password contains invalid characters/)
+		).password.invalidChars.error).to.equal(true)
 	});
 
 	it('attaches an error when the given authority is invalid', function () {
@@ -97,24 +97,27 @@ describe("validateUserForm", function () {
 			"",
 			"usernameusername",
 			"passwordpassword",
-			"passwordpassword"
-		).authority[0]).to.match(/Authority is too short/)
+			"passwordpassword",
+			[""]
+		).authority.tooShort.error).to.equal(true)
 
 		expect(validateUserForm(
 			"aa",
 			"usernameusername",
 			"passwordpassword",
-			"passwordpassword"
-		).authority[0]).to.match(/Authority is too short/)
+			"passwordpassword",
+			["aa"]
+		).authority.tooShort.error).to.equal(true)
 
 		const chars299 = stringRepeat("0123456789", 29) + "012345678"
 		expect(chars299.length).to.equal(299)
-		expect(validateUserForm(
+		expect(noErrors(validateUserForm(
 			chars299,
 			"usernameusername",
 			"passwordpassword",
-			"passwordpassword"
-		).authority).to.be.empty
+			"passwordpassword",
+			[chars299]
+		))).to.equal(true)
 
 		const chars300 = stringRepeat("0123456789", 30)
 		expect(chars300.length).to.equal(300)
@@ -122,30 +125,39 @@ describe("validateUserForm", function () {
 			chars300,
 			"usernameusername",
 			"passwordpassword",
-			"passwordpassword"
-		).authority[0]).to.match(/Authority is too long/)
+			"passwordpassword",
+			[chars300]
+		).authority.tooLong.error).to.equal(true)
 
 		expect(validateUserForm(
 			"aa<><><><>",
 			"usernameusername",
 			"passwordpassword",
+			"passwordpassword",
+			["aa<><><><>"]
+		).authority.invalidChars.error).to.equal(true)
+
+		expect(validateUserForm(
+			"FooMember",
+			"usernameusername",
+			"passwordpassword",
 			"passwordpassword"
-		).authority[0]).to.match(/Authority contains invalid characters/)
+		).authority.oneOf.error).to.equal(true)
 	});
 
 	it("allows only matching passwords", function () {
 		expect(validateUserForm(
-			"admin",
+			"Admin",
 			"usernameusername",
 			"passwordpassword",
 			"nonmatchingpassword"
-		).password[0]).to.match(/Password must match/)
+		).password.confirm.error).to.equal(true)
 
-		expect(validateUserForm(
-			"admin",
+		expect(noErrors(validateUserForm(
+			"Admin",
 			"usernameusername",
 			"passwordpassword",
 			"passwordpassword"
-		).password).to.be.empty
+		))).to.equal(true)
 	})
 });

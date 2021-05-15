@@ -17,12 +17,20 @@
         </h3>
         <div id="username-errors">
             <ul>
-                {% for error in errors.username %}
-                    <li>{{ error }}</li>
+                {% for name, error in errors.username %}
+                    {% if error.error or not error.hideByDefault %}
+                        {% if error.error %}
+                            <li>
+                                <b>{{ error.desc }}</b>
+                            </li>
+                        {% else %}
+                            <li style="color: grey">{{ error.desc }}</li>
+                        {% endif %}
+                    {% endif %}
                 {% endfor %}
             </ul>
         </div>
-        <input id="username" type="text" name="username"/>
+        <input id="username" type="text" name="username" value="{{ username }}"/>
         <h3>
             <label for="password">
                 Password
@@ -30,8 +38,16 @@
         </h3>
         <div id="password-errors">
             <ul>
-                {% for error in errors.password %}
-                    <li>{{ error }}</li>
+                {% for name, error in errors.password %}
+                    {% if error.error or not error.hideByDefault %}
+                        {% if error.error %}
+                            <li>
+                                <b>{{ error.desc }}</b>
+                            </li>
+                        {% else %}
+                            <li style="color: grey">{{ error.desc }}</li>
+                        {% endif %}
+                    {% endif %}
                 {% endfor %}
             </ul>
         </div>
@@ -44,17 +60,28 @@
         <input id="passwordConfirm" type="password" name="passwordConfirm"/>
         <h3>
             <label for="authority">
-                Authority
+                Initial authority
             </label>
         </h3>
+        <div>Additional roles may be added after the user has been created.</div>
         <div id="authority-errors">
             <ul>
-                {% for error in errors.authority %}
-                    <li>{{ error }}</li>
+                {% for name, error in errors.authority %}
+                    {% if error.error or not error.hideByDefault %}
+                        {% if error.error %}
+                            <li>
+                                <b>{{ error.desc }}</b>
+                            </li>
+                        {% else %}
+                            <li style="color: grey">{{ error.desc }}</li>
+                        {% endif %}
+                    {% endif %}
                 {% endfor %}
             </ul>
         </div>
-        <input id="authority" type="text" name="authority"/>
-        <input id="submit" type="submit" value="Submit"/>
+        <input id="authority" type="text" name="authority" value="{{ authority }}"/>
+        <div style="margin-top: 20px">
+            <input id="submit" type="submit" value="Submit"/>
+        </div>
     </form>
 {% endblock %}
