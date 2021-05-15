@@ -58,7 +58,9 @@ function configurePreRouting(app) {
 		directives: process.env.DEV_MODE ? dev : prod
 	}))
 	app.use(function (req, res, next) {
-		res.set("Content-Security-Policy", `${res.get("Content-Security-Policy")};  require-trusted-types-for 'script'`)
+		res.set(
+			"Content-Security-Policy", `${res.get("Content-Security-Policy")};  require-trusted-types-for 'script'`
+		)
 		next()
 	})
 	app.use(rateLimiterMiddleware)
@@ -69,6 +71,8 @@ function configurePreRouting(app) {
 		delete req.session.sessionFlash;
 		next();
 	});
+
+	return app
 }
 
 function configurePostRouting(app) {

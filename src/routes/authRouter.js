@@ -1,5 +1,7 @@
 const express = require("express")
 const argon2 = require("argon2")
+const { wrap } = require("../wrap")
+
 const router = express.Router()
 const { renderFormWithCSRF } = require("../renderFormWithCSRF")
 const { sequelize } = require("../sequelize")

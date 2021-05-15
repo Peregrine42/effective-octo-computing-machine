@@ -1,5 +1,6 @@
-var express = require("express")
-var router = express.Router()
+const express = require("express")
+const router = express.Router()
+
 const { router: authRouter } = require("./authRouter")
 const { router: usersRouter } = require("./usersRouter")
 

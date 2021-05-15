@@ -5,9 +5,11 @@
 	"main": "index.js",
 	"scripts": {
 		"start": "node src/app.js",
-		"test": "npm run mocha -- test/suite/unit && npm run test:browser -- test/suite/e2e",
+		"test": "npm run test:unit && npm run test:e2e",
+		"test:e2e": "npm run test:browser -- test/suite/e2e",
+		"test:unit": "npm run test:mocha -- test/suite/unit",
 		"test:browser": "node test/helpers/webdriver.io.js",
-		"mocha": "mocha --color --timeout 30000 --full-trace --recursive",
+		"test:mocha": "mocha --color --timeout 30000 --full-trace --recursive",
 		"sequelize": "sequelize",
 		"migrate": "sequelize db:migrate",
 		"rollback": "sequelize db:migrate:undo"

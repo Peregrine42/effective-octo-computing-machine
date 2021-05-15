@@ -117,7 +117,7 @@ function sleep(interval) {
 	await poll("http://localhost:4444", 405)
 
 	console.log("starting main process...")
-	testChild = shell.exec(`npm run mocha -- ${path}`, {
+	testChild = shell.exec(`npm run test:mocha -- ${path}`, {
 		async: true
 	})
 	console.log("main process running...")
