@@ -5,6 +5,7 @@ const Cookie = require('@hapi/cookie')
 const Crumb = require('@hapi/crumb')
 const Inert = require("@hapi/inert")
 const Yar = require("@hapi/yar")
+const RateLimit = require('hapi-rate-limit')
 const Sequelize = require("sequelize")
 const path = require('path')
 const argon2 = require("argon2")
@@ -93,6 +94,12 @@ const init = async () => {
 	await server.register(dbPlugin)
 	await server.register(Vision)
 	await server.register(Inert)
+	server.register({
+		plugin: RateLimit,
+		options: {
+			authLimit: false,
+		}
+	})
 	await server.register({
 		plugin: Yar,
 		options: {
@@ -286,17 +293,17 @@ const init = async () => {
 	})
 
 	if (process.env.DEV_MODE === "true") {
-		server.events.on('response', function (request) {
-			console.log(
-				request.info.remoteAddress +
-				': ' +
-				request.method.toUpperCase() +
-				' ' +
-				request.url +
-				': ' +
-				request.response.statusCode
-			);
-		});
+		// server.events.on('response', function (request) {
+		// 	console.log(
+		// 		request.info.remoteAddress +
+		// 		': ' +
+		// 		request.method.toUpperCase() +
+		// 		' ' +
+		// 		request.url +
+		// 		': ' +
+		// 		request.response.statusCode
+		// 	);
+		// });
 	}
 
 	await server.start()

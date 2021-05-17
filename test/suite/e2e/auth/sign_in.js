@@ -9,7 +9,7 @@ const { addTestAdminUser } = require("../../../helpers/addTestAdminUser")
 let browser
 let sequelize
 
-describe("Users", function () {
+describe("Auth", function () {
 	beforeEach(async () => {
 		browser = await buildBrowser()
 		await browser.deleteCookies()

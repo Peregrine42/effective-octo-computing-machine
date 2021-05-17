@@ -1,4 +1,4 @@
-const { encrypt } = require("../../src/encrypt")
+const { encrypt } = require("./encrypt")
 
 module.exports.addTestUser = async function (sequelize, username, password) {
 	await sequelize.query(
