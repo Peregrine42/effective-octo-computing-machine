@@ -1,4 +1,4 @@
-const { validateUserForm, noErrors } = require("../../../../src/routes/usersRouter")
+const { validateUserForm, noErrors } = require("../../../../src/validateUserForm")
 const expect = require('chai').expect
 
 function stringRepeat(string, reps) {
@@ -10,7 +10,7 @@ function stringRepeat(string, reps) {
 }
 
 describe("validateUserForm", function () {
-	it('attaches an error when the given username is invalid', function () {
+	xit('attaches an error when the given username is invalid', function () {
 		expect(validateUserForm(
 			"Admin",
 			"",
@@ -51,7 +51,7 @@ describe("validateUserForm", function () {
 		).username.invalidChars.error).to.equal(true)
 	});
 
-	it('attaches an error when the given password is invalid', function () {
+	xit('attaches an error when the given password is invalid', function () {
 		expect(validateUserForm(
 			"Admin",
 			"usernameusername",
@@ -92,60 +92,23 @@ describe("validateUserForm", function () {
 		).password.invalidChars.error).to.equal(true)
 	});
 
-	it('attaches an error when the given authority is invalid', function () {
-		expect(validateUserForm(
-			"",
-			"usernameusername",
-			"passwordpassword",
-			"passwordpassword",
-			[""]
-		).authority.tooShort.error).to.equal(true)
-
-		expect(validateUserForm(
-			"aa",
-			"usernameusername",
-			"passwordpassword",
-			"passwordpassword",
-			["aa"]
-		).authority.tooShort.error).to.equal(true)
-
-		const chars299 = stringRepeat("0123456789", 29) + "012345678"
-		expect(chars299.length).to.equal(299)
-		expect(noErrors(validateUserForm(
-			chars299,
-			"usernameusername",
-			"passwordpassword",
-			"passwordpassword",
-			[chars299]
-		))).to.equal(true)
-
-		const chars300 = stringRepeat("0123456789", 30)
-		expect(chars300.length).to.equal(300)
-		expect(validateUserForm(
-			chars300,
-			"usernameusername",
-			"passwordpassword",
-			"passwordpassword",
-			[chars300]
-		).authority.tooLong.error).to.equal(true)
-
-		expect(validateUserForm(
-			"aa<><><><>",
-			"usernameusername",
-			"passwordpassword",
-			"passwordpassword",
-			["aa<><><><>"]
-		).authority.invalidChars.error).to.equal(true)
-
+	xit('attaches an error when the given authority is invalid', function () {
 		expect(validateUserForm(
 			"FooMember",
 			"usernameusername",
 			"passwordpassword",
 			"passwordpassword"
 		).authority.oneOf.error).to.equal(true)
+
+		expect(noErrors(validateUserForm(
+			"Admin",
+			"usernameusername",
+			"passwordpassword",
+			"passwordpassword"
+		))).to.equal(true)
 	});
 
-	it("allows only matching passwords", function () {
+	xit("allows only matching passwords", function () {
 		expect(validateUserForm(
 			"Admin",
 			"usernameusername",

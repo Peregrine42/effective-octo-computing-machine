@@ -91,7 +91,7 @@ function sleep(interval) {
 	const path = process.argv.slice(2).join(" ")
 	if (!path) throw ("no path given for mocha")
 
-	child = shell.exec("node src/app.js",
+	child = shell.exec("npm start",
 		{
 			async: true,
 			silent: true,

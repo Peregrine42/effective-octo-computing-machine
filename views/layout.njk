@@ -8,9 +8,9 @@
             Effective Octo - {{ title }}
         </title>
         {% if scriptEntry %}
-            <script src="{{ scriptEntry }}" type="text/javascript" nonce="{{ csp.nonce }}"></script>
+            <script src="{{ scriptEntry }}" type="text/javascript" nonce="{{ nonce }}"></script>
         {% endif %}
-        <link href="/css/base.css" rel="stylesheet" nonce="{{ csp.nonce }}"/>
+        <link href="/public/css/base.css" rel="stylesheet" nonce="{{ nonce }}"/>
     </head>
     <body>
         {% if success %}
@@ -26,9 +26,10 @@
         {% if info %}
             <div id="info">{{ info }}</div>
         {% endif %}
-        {% if authenticated %}
-            <form method="post" accept-charset="UTF-8" action="/auth/sign-out">
-                <input type="hidden" name="{{ csrf.parameterName }}" value="{{ csrf.token }}"/>
+        {% if credentials and credentials.username %}
+            <div>Username: {{ credentials.username }}</div>
+            <form method="post" accept-charset="UTF-8" action="/sign-out">
+                <input type="hidden" name="csrf" value="{{ csrf }}"/>
                 <input id="sign-out" type="submit" value="Sign out">
             </form>
         {% endif %}

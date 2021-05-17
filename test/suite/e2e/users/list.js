@@ -17,7 +17,7 @@ describe("Users", function () {
 		sequelize = getDbConnection()
 	})
 
-	it('list all users', async function () {
+	xit('list all users', async function () {
 		await resetDb(sequelize)
 		await addTestUser(sequelize, "testuser", "testpassword")
 		await addTestUser(sequelize, "testuser2", "testpassword2")

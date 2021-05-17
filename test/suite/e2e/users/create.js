@@ -16,7 +16,7 @@ describe("Users", function () {
 		sequelize = getDbConnection()
 	})
 
-	it('creates a new user', async function () {
+	xit('creates a new user', async function () {
 		await resetDb(sequelize)
 		await addTestAdminUser(sequelize, "testuser", "testpassword")
 		await browser.url("localhost:8080")
@@ -50,7 +50,7 @@ describe("Users", function () {
 		expect(result).to.equal(true)
 	});
 
-	it('shows validation errors when given bad input', async function () {
+	xit('shows validation errors when given bad input', async function () {
 		await resetDb(sequelize)
 		await addTestAdminUser(sequelize, "testuser", "testpassword")
 		await browser.url("localhost:8080")

@@ -9,19 +9,20 @@ const { addTestAdminUser } = require("../../../helpers/addTestAdminUser")
 let browser
 let sequelize
 
-describe("Auth", function () {
+describe("Users", function () {
 	beforeEach(async () => {
 		browser = await buildBrowser()
 		await browser.deleteCookies()
 		sequelize = getDbConnection()
 	})
 
-	it("rejects the user when they access another page without signing in", async function () {
+	it('can sign in', async function () {
 		await resetDb(sequelize)
 		await addTestAdminUser(sequelize, "testuser", "testpassword")
-		await browser.url("localhost:8080/users")
+		await browser.url("localhost:8080")
 		browserLog("new page: ", await browser.getTitle())
-		const result = await browser.getTitle()
-		expect(result).to.equal("Forbidden")
+
+		const loginResult = await tryToSignInWith("testuser", "testpassword")
+		expect(loginResult).to.equal(true)
 	});
 });
