@@ -5,6 +5,7 @@ const Cookie = require('@hapi/cookie')
 const Crumb = require('@hapi/crumb')
 const Inert = require("@hapi/inert")
 const Yar = require("@hapi/yar")
+const Nes = require('@hapi/nes')
 const RateLimit = require('hapi-rate-limit')
 const Sequelize = require("sequelize")
 const path = require('path')
@@ -60,6 +61,55 @@ const checkForUser = async (sequelize, username, password) => {
 	}
 }
 
+async function insertMessage(sequelize, sender, recipient, message) {
+	await sequelize.query(
+		`
+			insert into messages
+			(
+				sender,
+				recipient,
+				message,
+				created_at
+			)
+			values
+			(
+				$sender,
+				$recipient,
+				$message,
+				now()
+			)
+		`,
+		{
+			bind: { sender, recipient, message }
+		}
+	)
+}
+
+async function getMessages(sequelize, sender) {
+	const [rows] = await sequelize.query(
+		`
+			update messages
+			set enabled=false
+			from (
+				select * from messages
+				where recipient=$sender and enabled=true
+				order by created_at asc
+			) as subquery
+			where messages.id = subquery.id
+			returning
+				messages.sender as sender, 
+				messages.recipient as recipient, 
+				messages.message as message, 
+				messages.created_at as "createdAt"
+		`,
+		{
+			bind: { sender }
+		}
+	)
+
+	return rows
+}
+
 const findByUserId = async (sequelize, userId) => {
 	const [result] = await sequelize.query(
 		`
@@ -85,7 +135,7 @@ const init = async () => {
 		host: "localhost",
 		routes: {
 			files: {
-				relativeTo: path.join(__dirname, '..', 'static')
+				relativeTo: path.join(__dirname, '..', '..', 'static')
 			}
 		}
 	})
@@ -94,7 +144,7 @@ const init = async () => {
 	await server.register(dbPlugin)
 	await server.register(Vision)
 	await server.register(Inert)
-	server.register({
+	await server.register({
 		plugin: RateLimit,
 		options: {
 			authLimit: false,
@@ -118,7 +168,7 @@ const init = async () => {
 				isSecure: process.env.DEV_MODE !== "true"
 			}
 		}
-	});
+	})
 
 	server.auth.strategy('session', 'cookie', {
 		cookie: {
@@ -160,7 +210,7 @@ const init = async () => {
 				}
 			}
 		},
-		relativeTo: __dirname + "/..",
+		relativeTo: __dirname + "/../..",
 		path: 'views/'
 	})
 
@@ -255,9 +305,67 @@ const init = async () => {
 		}
 	])
 
+	server.route([{
+		method: 'POST',
+		path: '/messages',
+		options: {
+			handler: async (request, h) => {
+				const { recipient, message } = request.payload;
+				if (!recipient) {
+					return h.response(
+						{ success: false, error: "No recipient" }
+					).code(422)
+				}
+
+				if (!message) {
+					return h.response(
+						{ success: false, error: "No message" }
+					).code(422)
+				}
+
+				try {
+					await insertMessage(
+						request.getDb(),
+						request.auth.credentials.username,
+						recipient,
+						message
+					)
+				} catch (e) {
+					console.error(e)
+					return h.response(
+						{ success: false, error: "Persistence error" }
+					).code(500)
+				}
+
+				return { success: true };
+			}
+		}
+	},
+	{
+		method: 'GET',
+		path: '/messages',
+		options: {
+			handler: async (request, h) => {
+				try {
+					messages = await getMessages(
+						request.getDb(),
+						request.auth.credentials.username,
+					)
+				} catch (e) {
+					console.error(e)
+					return h.response(
+						{ success: false, error: "Query error" }
+					).code(500)
+				}
+
+				return { success: true, messages };
+			}
+		}
+	}])
+
 	server.route({
 		method: 'GET',
-		path: '/public/{param*}',
+		path: '/{param*}',
 		options: {
 			auth: false
 		},
@@ -272,7 +380,9 @@ const init = async () => {
 	server.route({
 		method: 'GET',
 		path: '/protected/{param*}',
-		options: {},
+		options: {
+			auth: false
+		},
 		handler: {
 			directory: {
 				path: './protected',
@@ -284,26 +394,23 @@ const init = async () => {
 	server.route({
 		method: ["*"],
 		path: '/{any*}',
-		options: {
-			auth: false
-		},
 		handler: (_request, h) => {
 			return h.view('404.njk').code(404)
 		}
 	})
 
 	if (process.env.DEV_MODE === "true") {
-		// server.events.on('response', function (request) {
-		// 	console.log(
-		// 		request.info.remoteAddress +
-		// 		': ' +
-		// 		request.method.toUpperCase() +
-		// 		' ' +
-		// 		request.url +
-		// 		': ' +
-		// 		request.response.statusCode
-		// 	);
-		// });
+		server.events.on('response', function (request) {
+			console.log(
+				request.info.remoteAddress +
+				': ' +
+				request.method.toUpperCase() +
+				' ' +
+				request.url +
+				': ' +
+				request.response.statusCode
+			);
+		});
 	}
 
 	await server.start()

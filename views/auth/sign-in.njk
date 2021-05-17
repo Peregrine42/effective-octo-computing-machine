@@ -1,6 +1,6 @@
 {% extends "layout.njk" %}
 {% set title = "Sign in" %}
-{% set scriptEntry = "/public/js/sign-in.js" %}
+{% set scriptEntry = "/js/sign-in.js" %}
 {% block body %}
     <form method="post" accept-charset="UTF-8" action="/sign-in">
         <input id="csrf" type="hidden" name="csrf" value="{{ csrf }}"/>

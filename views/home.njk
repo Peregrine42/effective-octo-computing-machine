@@ -1,3 +1,6 @@
 {% extends "layout.njk" %}
+{% set scriptEntry = "/protected/js/home.js" %}
 {% set title = "Home" %}
-{% block body %}{% endblock %}
+{% block body %}
+    <input id="csrf" type="hidden" name="csrf" value="{{ csrf }}"/>
+{% endblock %}

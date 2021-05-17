@@ -8,5 +8,5 @@ target/
 .vscode/
 .idea/
 .envrc
-certs/*
-!certs/.gitkeep
+static/protected/js/*
+!static/protected/js/.gitkeep
