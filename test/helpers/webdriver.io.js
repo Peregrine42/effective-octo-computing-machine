@@ -134,7 +134,9 @@ function sleep(interval) {
 	}
 
 	await deleteEverything()
+	process.exit(testChild.exitCode)
 })().catch(async (e) => {
 	await deleteEverything()
 	console.error(e)
+	process.exit(1)
 })

@@ -5,8 +5,9 @@
 	"main": "index.js",
 	"scripts": {
 		"start": "node src/index.js",
-		"test": "npm run test:unit && npm run test:e2e",
+		"test": "npm run test:unit && npm run test:e2e && npm run test:rate",
 		"test:e2e": "npm run test:browser -- test/suite/e2e",
+		"test:rate": "npm run test:browser -- test/suite/rate_limiting",
 		"test:unit": "npm run test:mocha -- test/suite/unit",
 		"test:browser": "node test/helpers/webdriver.io.js",
 		"test:mocha": "mocha --color --timeout 30000 --full-trace --recursive",
