@@ -6,17 +6,13 @@ const start = async () => {
 	const csrfElement = document.getElementById("csrf") as HTMLInputElement
 	const csrf = csrfElement.value
 
-	console.log(csrf)
+	// const response = await axios.get("/messages")
 
-	const response = await axios.get("/messages")
+	const response = await axios.post("/admin/cleanup/messages", {
+		csrf,
+	})
 
-	// const response = await axios.post("/messages", {
-	// 	csrf,
-	// 	recipient: "testuser",
-	// 	message: JSON.stringify({ text: "Hi there" })
-	// })
-
-	console.log(response)
+	console.log(response.data)
 };
 
 start();

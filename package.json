@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"start": "node src/server/index.js",
-		"test": "npm run test:unit && npm run test:e2e && npm run test:rate",
+		"test": "npm run test:e2e && npm run test:rate",
 		"test:e2e": "npm run test:browser -- test/suite/e2e",
 		"test:rate": "npm run test:browser -- test/suite/rate_limiting",
 		"test:unit": "npm run test:mocha -- test/suite/unit",
@@ -33,6 +33,7 @@
 		"argon2": "^0.27.2",
 		"axios": "^0.21.1",
 		"chai": "^4.3.4",
+		"form-data": "^4.0.0",
 		"geckodriver": "^1.22.3",
 		"mocha": "^6.2.3",
 		"shelljs": "^0.8.4",

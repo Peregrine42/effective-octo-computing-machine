@@ -18,9 +18,13 @@ describe("Auth", function () {
 
 	it('rejects the user when they enter no password', async function () {
 		await resetDb(sequelize)
-		await addTestAdminUser(sequelize, "testuser", "testpassword")
+		await addTestAdminUser(
+			sequelize,
+			process.env.TEST_USERNAME,
+			process.env.TEST_PASSWORD
+		)
 		await browser.url("localhost:8080")
-		const result = await tryToSignInWith("testuser", "")
+		const result = await tryToSignInWith(process.env.TEST_USERNAME, "")
 		browserLog("new page: ", await browser.getTitle())
 		expect(result).to.equal(false)
 	});

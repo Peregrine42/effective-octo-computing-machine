@@ -18,11 +18,11 @@ describe("Auth", function () {
 
 	it('can sign in', async function () {
 		await resetDb(sequelize)
-		await addTestAdminUser(sequelize, "testuser", "testpassword")
+		await addTestAdminUser(sequelize, process.env.TEST_USERNAME, process.env.TEST_PASSWORD)
 		await browser.url("localhost:8080")
 		browserLog("new page: ", await browser.getTitle())
 
-		const loginResult = await tryToSignInWith("testuser", "testpassword")
+		const loginResult = await tryToSignInWith(process.env.TEST_USERNAME, process.env.TEST_PASSWORD)
 		expect(loginResult).to.equal(true)
 	});
 });

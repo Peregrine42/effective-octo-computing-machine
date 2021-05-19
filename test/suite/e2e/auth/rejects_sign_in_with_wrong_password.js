@@ -18,20 +18,20 @@ describe("Auth", function () {
 
 	it('rejects the user when they enter an incorrect password', async function () {
 		await resetDb(sequelize)
-		await addTestAdminUser(sequelize, "testuser", "testpassword")
+		await addTestAdminUser(sequelize, process.env.TEST_USERNAME, process.env.TEST_PASSWORD)
 		await browser.url("localhost:8080")
-		const result = await tryToSignInWith("testuser", "wrong-testpassword")
+		const result = await tryToSignInWith(process.env.TEST_USERNAME, "wrong-" + process.env.TEST_PASSWORD)
 		browserLog("new page: ", await browser.getTitle())
 		expect(result).to.equal(false)
 	});
 
 	it('retains the username after a failed sign in', async function () {
 		await resetDb(sequelize)
-		await addTestAdminUser(sequelize, "testuser", "testpassword")
+		await addTestAdminUser(sequelize, process.env.TEST_USERNAME, process.env.TEST_PASSWORD)
 		await browser.url("localhost:8080")
-		await tryToSignInWith("testuser", "wrong-testpassword")
+		await tryToSignInWith(process.env.TEST_USERNAME, "wrong-" + process.env.TEST_PASSWORD)
 		browserLog("new page: ", await browser.getTitle())
 		const result = await (await browser.$("#username")).getValue()
-		expect(result).to.equal("testuser")
+		expect(result).to.equal(process.env.TEST_USERNAME)
 	});
 });

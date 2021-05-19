@@ -18,7 +18,7 @@ describe("Auth", function () {
 
 	it("prompts the user to sign in when they access a page without signing in", async function () {
 		await resetDb(sequelize)
-		await addTestAdminUser(sequelize, "testuser", "testpassword")
+		await addTestAdminUser(sequelize, process.env.TEST_USERNAME, process.env.TEST_PASSWORD)
 		await browser.url("localhost:8080")
 		browserLog("new page: ", await browser.getTitle())
 		const result = await browser.getTitle()

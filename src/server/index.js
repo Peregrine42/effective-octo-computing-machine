@@ -40,11 +40,11 @@ const dbPlugin = {
 }
 
 const checkForUser = async (sequelize, username, password) => {
-	const [[{ id, encrypted_password: encryptedPassword }]] = await sequelize.query(
+	const [result] = await sequelize.query(
 		`
-          	select id, encrypted_password
-		  	from users 
-		  	where username = $username
+			select id, encrypted_password as "encryptedPassword"
+			from users 
+			where username = $username
 			and enabled = 't'
 		`,
 		{
@@ -52,10 +52,17 @@ const checkForUser = async (sequelize, username, password) => {
 		}
 	)
 
+	if (result.length !== 1) {
+		console.error(result)
+		return false
+	}
+
+	const user = result[0]
+
+	const { encryptedPassword } = user
+
 	if (await argon2.verify(encryptedPassword, password)) {
-		return {
-			id
-		}
+		return user
 	} else {
 		return false
 	}
@@ -81,6 +88,19 @@ async function insertMessage(sequelize, sender, recipient, message) {
 		`,
 		{
 			bind: { sender, recipient, message }
+		}
+	)
+}
+
+async function deleteOlderMessages(sequelize) {
+	console.log(process.env.MAX_MESSAGE_AGE)
+	await sequelize.query(
+		`
+			delete from messages
+			where created_at < now() - $maxMessageAge::interval
+		`,
+		{
+			bind: { maxMessageAge: process.env.MAX_MESSAGE_AGE }
 		}
 	)
 }
@@ -113,10 +133,16 @@ async function getMessages(sequelize, sender) {
 const findByUserId = async (sequelize, userId) => {
 	const [result] = await sequelize.query(
 		`
-          	select id, username
-		  	from users 
-		  	where id = $userId
-			and enabled = 't'
+			select 
+				users.id as id, 
+				users.username as username, 
+				array_agg(roles.authority) as scope
+				from users 
+			left join roles on users.username = roles.username
+			where users.id = $userId
+			and users.enabled = 't'
+			and roles.enabled = 't'
+			group by users.id, users.username
 		`,
 		{
 			bind: { userId }
@@ -131,6 +157,7 @@ const findByUserId = async (sequelize, userId) => {
 
 const init = async () => {
 	const server = Hapi.server({
+		debug: { request: ['error'] },
 		port: 8080,
 		host: "localhost",
 		routes: {
@@ -153,6 +180,7 @@ const init = async () => {
 	await server.register({
 		plugin: Yar,
 		options: {
+			name: "session-flash",
 			cookieOptions: {
 				password: process.env.SESSION_SECRET,
 				isSecure: process.env.DEV_MODE !== "true",
@@ -174,7 +202,8 @@ const init = async () => {
 		cookie: {
 			name: 'effective-octo',
 			password: process.env.SESSION_SECRET,
-			isSecure: process.env.DEV_MODE !== "true"
+			isSecure: process.env.DEV_MODE !== "true",
+			ttl: 1000 * 60 * 60 * 12
 		},
 
 		redirectTo: '/sign-in',
@@ -225,6 +254,20 @@ const init = async () => {
 		}
 	})
 
+	server.route({
+		method: "POST",
+		path: "/admin/cleanup/messages",
+		handler: async (request, _h) => {
+			await deleteOlderMessages(request.getDb())
+			return "OK"
+		},
+		options: {
+			auth: {
+				scope: ["ADMIN"]
+			},
+		}
+	})
+
 	server.route([
 		{
 			method: 'GET',
@@ -271,10 +314,12 @@ const init = async () => {
 				handler: async (request, h) => {
 					const { username, password } = request.payload;
 					if (!username) {
+						console.error("no username")
 						return h.view("auth/sign-in");
 					}
 
 					if (!password) {
+						console.error("no password")
 						return h.view("auth/sign-in", {
 							username
 						});
@@ -282,6 +327,7 @@ const init = async () => {
 
 					const account = await checkForUser(request.getDb(), username, password)
 					if (account) {
+						console.log("acc", account)
 						request.cookieAuth.set({ id: account.id });
 						request.yar.flash("success", "Sign in complete", true)
 						return h.redirect('/');

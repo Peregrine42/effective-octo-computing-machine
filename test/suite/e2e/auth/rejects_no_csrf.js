@@ -18,14 +18,21 @@ describe("Auth", function () {
 
 	it("rejects the user when CSRF isn't present", async function () {
 		await resetDb(sequelize)
-		await addTestAdminUser(sequelize, "testuser", "testpassword")
+		await addTestAdminUser(
+			sequelize,
+			process.env.TEST_USERNAME,
+			process.env.TEST_PASSWORD
+		)
 		await browser.url("localhost:8080")
 
 		const script = `
             document.getElementById("csrf").remove()
         `
 		await browser.execute(script)
-		const result = await tryToSignInWith("testuser", "testpassword")
+		const result = await tryToSignInWith(
+			process.env.TEST_USERNAME,
+			process.env.TEST_PASSWORD
+		)
 		browserLog("new page: ", await browser.getTitle())
 		expect(result).to.equal(false)
 	});
