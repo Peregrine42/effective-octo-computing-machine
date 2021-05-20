@@ -1,13 +1,14 @@
 const shell = require("shelljs")
 const kill = require("tree-kill")
+const execa = require('execa')
 const axios = require("axios").default
-const { serverLog } = require("./serverLog")
+const cp = require('child_process')
 
 let driverChild
 let testChild
 let child
-let testsFinished
-const testsTimeout = 2 * (60 * 10)
+let backgroundChild
+let backgroundReadyChild
 let verbose = !!process.env.DEBUG
 
 function debug(...messages) {
@@ -16,22 +17,47 @@ function debug(...messages) {
 	}
 }
 
+function sleep(interval) {
+	return new Promise(res => {
+		setTimeout(res, interval)
+	})
+}
+
+async function killAll(child) {
+	await new Promise(res => {
+		kill(child.pid, res)
+	})
+	await driverChild.kill()
+}
+
+process.on("unhandledRejection", async (err) => {
+	console.error(err)
+	process.exit(1)
+})
+
 async function deleteEverything() {
 	if (driverChild) {
 		debug("deleting driver")
-		await new Promise((res) => {
-			kill(driverChild.pid, "SIGQUIT", res)
-		})
+		await killAll(driverChild)
 		debug("deleted driver")
 	}
 
-
 	if (child) {
 		debug("deleting server")
-		await new Promise(res => {
-			kill(child.pid, res)
-		})
+		await killAll(child)
 		debug("deleted server")
+	}
+
+	if (backgroundChild) {
+		debug("deleting background")
+		await killAll(backgroundChild)
+		debug("deleted background")
+	}
+
+	if (backgroundReadyChild) {
+		debug("deleting background ready server")
+		await killAll(backgroundReadyChild)
+		debug("deleted background ready server")
 	}
 
 	console.log("cleanup")
@@ -63,12 +89,6 @@ async function poll(url, expectedErrorCode = null) {
 	throw new Error("No server found")
 }
 
-function sleep(interval) {
-	return new Promise(res => {
-		setTimeout(res, interval)
-	})
-}
-
 (async () => {
 	axios.defaults.timeout = 500;
 
@@ -91,48 +111,60 @@ function sleep(interval) {
 	const path = process.argv.slice(2).join(" ")
 	if (!path) throw ("no path given for mocha")
 
-	child = shell.exec("npm start",
+	child = execa('npm', ['start'],
 		{
-			async: true,
-			silent: true,
+			all: true,
 		}
 	)
-	child.stdout.on('data', function (data) {
-		serverLog(data.toString().slice(0, -1))
-	});
-
-	child.stderr.on('data', function (data) {
-		serverLog(data.toString().slice(0, -1))
-	});
-
+	child.all.pipe(process.stdout)
 	await poll("http://localhost:8080/status")
 
-	driverChild = shell.exec(
-		"./node_modules/.bin/geckodriver",
+	backgroundReadyChild = execa('npm', ['run', 'test:background:ready'],
 		{
-			async: true,
-			silent: !verbose
+			all: true,
+		}
+	)
+	backgroundReadyChild.all.pipe(process.stdout)
+	await poll("http://localhost:8081", 403)
+
+	backgroundChild = execa('npm', ['run', 'background'],
+		{
+			all: true,
+		}
+	)
+	backgroundChild.all.pipe(process.stdout)
+	await poll("http://localhost:8081")
+
+	driverChild = execa('./node_modules/.bin/geckodriver',
+		{
+			all: true,
 		}
 	)
 	await poll("http://localhost:4444", 405)
 
 	console.log("starting main process...")
-	testChild = shell.exec(`npm run test:mocha -- ${path}`, {
-		async: true
-	})
+	testChild = execa(
+		'npm',
+		[
+			"run",
+			"test:mocha",
+			"--",
+		].concat(
+			process.argv.slice(2)
+		),
+		{
+			all: true,
+		}
+	)
+	testChild.all.pipe(process.stdout)
+
 	console.log("main process running...")
 
-	testChild.on("close", function () {
-		testsFinished = true
-	})
-
-	for (let i = 0; i < testsTimeout; i += 1) {
-		if (testsFinished) {
-			break
-		}
-		await sleep(100)
+	try {
+		await testChild
+	} catch (_e) {
+		// console.error(e)
 	}
-
 	await deleteEverything()
 	process.exit(testChild.exitCode)
 })().catch(async (e) => {
